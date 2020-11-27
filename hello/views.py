@@ -3,12 +3,58 @@ from django.http import HttpResponse
 
 from .models import Greeting
 import requests
+import json
+
+TOKEN = "SCXbnAgPMbDBTbbzUfCZ2RA7D7qQ4rnaQuqqECNP"
+
+class Person:
+  def __init__(self,id, name, surname):
+    self.id = id
+    self.name = name
+    self.surname = surname
+  allUnits = []
+  
+def getOthers(person_list):
+
+    for person in person_list:
+
+        url = "https://kolayik.com/api/v2/person/view/" + person.id
+
+        payload = {}
+        headers= {'Authorization':TOKEN}
+        response = requests.request("GET", url, headers=headers, data = payload)
+        
+        json_data = json.loads(response.text)
+        print(json_data['data']['person']['unitList'][0]['items'])
+        person.allUnits = json_data['data']['person']['unitList'][0]['items']
+    return person_list
 
 # Create your views here.
 def index(request):
-    r = requests.get('http://httpbin.org/status/418')
-    print(r.text)
-    return HttpResponse('<pre>' + r.text + '</pre>')
+    person_list = []
+    
+    url = "https://kolayik.com/api/v2/person/list"
+
+    payload = {'status': 'active'}
+    headers= {'Authorization':TOKEN}
+
+    response = requests.request("POST", url, headers=headers, data = payload)
+        
+    json_data = json.loads(response.text)
+
+    for item in json_data['data']['items']:
+        p1 = Person(item['id'],item['firstName'], item['lastName'])
+        person_list.append(p1)
+    
+#    return HttpResponse('<pre>' + response.text + '</pre>')
+
+    person_list = getOthers(person_list)
+    
+    
+    if request.method == "POST":
+        return HttpResponseRedirect(reverse("hello:url"))
+    else:
+        return render(request, 'index.html', {'person_list':person_list})
 
 def db(request):
 
