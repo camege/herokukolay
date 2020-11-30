@@ -20,7 +20,7 @@ def getOthers(person_list, TOKEN):
 
     for person in person_list:
 
-        url = "https://kolayik.com/api/v2/person/view/" + person.id
+        url = "http://ege.test.kolay.cloud/api/v2/person/view/" + person.id
 
         payload = {}
         headers= {'Authorization':TOKEN}
@@ -37,7 +37,7 @@ def index(request):
     
     TOKEN = request.GET.get('token')
     
-    url = "https://kolayik.com/api/v2/person/list"
+    url = "http://ege.test.kolay.cloud/api/v2/person/list"
 
     payload = {'status': 'active'}
     headers= {'Authorization':TOKEN}
