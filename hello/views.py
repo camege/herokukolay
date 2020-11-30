@@ -4,8 +4,10 @@ from django.http import HttpResponse
 from .models import Greeting
 import requests
 import json
+import os
 
-TOKEN = "SCXbnAgPMbDBTbbzUfCZ2RA7D7qQ4rnaQuqqECNP"
+#
+#TOKEN = "SCXbnAgPMbDBTbbzUfCZ2RA7D7qQ4rnaQuqqECNP"
 
 class Person:
   def __init__(self,id, name, surname):
@@ -14,7 +16,7 @@ class Person:
     self.surname = surname
   allUnits = []
   
-def getOthers(person_list):
+def getOthers(person_list, TOKEN):
 
     for person in person_list:
 
@@ -25,13 +27,15 @@ def getOthers(person_list):
         response = requests.request("GET", url, headers=headers, data = payload)
         
         json_data = json.loads(response.text)
-        print(json_data['data']['person']['unitList'][0]['items'])
+#        print(json_data['data']['person']['unitList'][0]['items'])
         person.allUnits = json_data['data']['person']['unitList'][0]['items']
     return person_list
 
 # Create your views here.
 def index(request):
     person_list = []
+    
+    TOKEN = request.GET.get('token')
     
     url = "https://kolayik.com/api/v2/person/list"
 
@@ -48,8 +52,9 @@ def index(request):
     
 #    return HttpResponse('<pre>' + response.text + '</pre>')
 
-    person_list = getOthers(person_list)
+    person_list = getOthers(person_list, TOKEN)
     
+    print(request.GET.get('token'))
     
     if request.method == "POST":
         return HttpResponseRedirect(reverse("hello:url"))
